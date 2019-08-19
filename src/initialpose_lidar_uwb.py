@@ -25,11 +25,15 @@ import numpy as np
 import map_matcher
 
 
-global occupancy_map
 global counter_point 
-global robot_realtime_pose
-global lidar_ranges
-    
+global occupancy_map 
+global robot_realtime_pose 
+global lidar_ranges 
+
+occupancy_map = None
+robot_realtime_pose = None
+lidar_ranges = None
+
 global sub_map
 global sub_scan
 global sub_local
@@ -115,6 +119,8 @@ def subscribe_map(OccupancyGrid):
     occupancy_map= OccupancyGrid
 
 if __name__ == "__main__":
+    
+    
     global sub_map
     global sub_scan
     global sub_local
@@ -124,5 +130,25 @@ if __name__ == "__main__":
     sub_scan = rospy.Subscriber("scan", LaserScan, subscribe_lidar)                 #get lidar data
     sub_local = rospy.Subscriber("localization_data_topic", Pose, subscribe_uwb)    #get robot position
 
-    time.sleep(1)
-    start_initializing()
+    time.sleep(5)
+    control_ready = 0
+    while control_ready < 20 :
+        control_ready = control_ready + 1 
+        time.sleep(0.2)
+        if occupancy_map != None and lidar_ranges != None and robot_realtime_pose != None : 
+            rospy.loginfo("Initial pose estimation is working.")
+            start_initializing()
+            break 
+
+
+    if occupancy_map == None :
+        rospy.logwarn("Initial pose estimation is not working.\nPlease control map server.")
+    elif lidar_ranges == None : 
+        rospy.logwarn("Initial pose estimation is not working.\nPlease control scan topic")
+    elif robot_realtime_pose == None :
+        rospy.logwarn("Initial pose estimation is not working.\nPlease control localization topic ")
+
+    rospy.loginfo("Initial pose estimation is closing.")
+    rospy.signal_shutdown('initialpose_lidar_uwb')
+    rospy.spin()
+

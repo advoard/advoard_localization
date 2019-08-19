@@ -172,8 +172,6 @@ def get_anchors_pos():
     if sensor_pos == [] :
         rospy.logwarn("There is not found any anchors. Function is working again.")    
         get_anchors_pos()
-    else: 
-        rospy.loginfo("UWB Anchor List:\nWarning : uint is mm \n" + str(sensor_pos))    
 
 
     return sensor_pos

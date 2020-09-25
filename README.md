@@ -2,13 +2,13 @@
 In this project we aimed to develop a system that works in ROS environment and can localize itself. These packages tested under turtlebot3, but it can also be used on any other system that has an Ultra-wideband ranging sensor and odometry sensors mounted. It is also possible to initialize the robot and send the initial pose estimation to navigation stack without the need of manually initializing it on the RViz window but keep in mind that in order to the use this feature LiDAR is required. AMCL also needs an initial pose so this feature is very crucial to have a fully autonomous system. We offer a simulation package with synthetic UWB data for now, but it can be adjusted so that it will be possible to the use it on real life robot with real UWB sensors.
 
 
-![](https://raw.githubusercontent.com/advoard/ros_advoard_localization/master/docs/map_matcher.gif)
+![](https://raw.githubusercontent.com/advoard/advoard_localization/master/docs/map_matcher.gif)
 
 
 ## Setup 
 First you will need to utilize at least 4 UWB sensors one is mounted on the robot and rest should be placed in a way that it will cover the area of interest where you want to localize your robot. Simulation is possible with the shared scripts. However, this package doesn’t support direct use so slight adjustments on the pozyx scripts are required. So install the package ros_pozyx_simulation and run it before
 
-- [pozyx uwb similation](https://github.com/advoard/ros_pozyx_simulation)</br>
+- [pozyx uwb similation](https://github.com/advoard/pozyx_simulation)</br>
 - [pozyx uwb real (coming soon)]()
 
 
@@ -60,4 +60,4 @@ rospy.Subscriber("localization_data_topic", Pose, subscribe_data)
 def subscribe_data(self,Pose):
   robot_realtime_pose= Pose
 
-![](https://raw.githubusercontent.com/advoard/ros_advoard_localization/master/docs/localization_gui.png)
+![](https://raw.githubusercontent.com/advoard/advoard_localization/master/docs/localization_gui.png)

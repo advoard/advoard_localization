@@ -31,8 +31,7 @@ sigma = np.array([[1.0, 0.0, 0.0],[0.0, 1.0, 0.0],[0.0, 0.0, 1.0]])
 sensor_pos=[]
 
 rospy.init_node('kalman_filter_localization', anonymous=True)
-pub = rospy.Publisher('localization_data_topic', Pose, queue_size=10)
-pub_ = rospy.Publisher('position_kalman', PointStamped, queue_size=10)
+pub_ = rospy.Publisher('localization_data_topic', PointStamped, queue_size=10)
 r = rospy.Rate(1)
 
 
@@ -144,15 +143,9 @@ def subscribe_uwb_data(uwb_data):
 
 def publish_data(pose_x,pose_y):
     robot_pos = Pose()
-    robot_pos.position.x = float(pose_x)
-    robot_pos.position.y = float(pose_y)
-    robot_pos.position.z = 0.0
-
-    robot_pos.orientation.x = 0.0
-    robot_pos.orientation.x = 0.0
-    robot_pos.orientation.x = 0.0
-    robot_pos.orientation.w = 0.0
-    pub.publish(robot_pos)
+    robot_pos_.position.x = float(pose_x)
+    robot_pos_.position.y = float(pose_y)
+    robot_pos_.position.z = 0
 
     robot_pos_ = PointStamped()
     robot_pos_.header.stamp = rospy.Time.now() 

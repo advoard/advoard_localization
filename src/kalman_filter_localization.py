@@ -13,7 +13,6 @@ import numpy as np
 import scipy.stats 
 
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Pose
 from pozyx_simulation.msg import  uwb_data
 from geometry_msgs.msg import PointStamped
 
@@ -142,15 +141,13 @@ def subscribe_uwb_data(uwb_data):
 
 
 def publish_data(pose_x,pose_y):
-    robot_pos = Pose()
-    robot_pos_.position.x = float(pose_x)
-    robot_pos_.position.y = float(pose_y)
-    robot_pos_.position.z = 0
-
     robot_pos_ = PointStamped()
+    robot_pos_.point.x = float(pose_x)
+    robot_pos_.point.y = float(pose_y)
+    robot_pos_.point.z = 0
+
     robot_pos_.header.stamp = rospy.Time.now() 
     robot_pos_.header.frame_id = "map" 
-    robot_pos_.point = robot_pos.position
     pub_.publish(robot_pos_)
 
 

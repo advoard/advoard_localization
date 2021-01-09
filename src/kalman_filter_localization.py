@@ -163,6 +163,8 @@ def get_anchors_pos():
             (trans,rot) = listener.lookupTransform('/map', uwb_id+str(i), rospy.Time(0))
             sensor_pos.append(trans)
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+            if(i == 0):
+                rospy.INFO("Firstly have to run pozyx_simulation package uwb_simulation.py file")
             break
 
     return sensor_pos

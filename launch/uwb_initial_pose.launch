@@ -1,4 +1,6 @@
 <launch>
+    <include file="$(find pozyx_simulation)/launch/uwb_anchors_set.launch" />
+  <node pkg="pozyx_simulation" name="uwb_simulation" type="uwb_simulation.py" />
   <node pkg="advoard_localization" name="kalman_filter_localization" type="kalman_filter_localization.py"/>
-  <node pkg="advoard_localization" name="initialpose_uwb_average" type="initialpose_uwb_average.py" >
+  <node pkg="advoard_localization" name="initialpose_uwb_average" type="initialpose_uwb_average.py" />
 </launch>

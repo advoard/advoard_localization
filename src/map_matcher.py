@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 __author__ = "Bekir Bostanci"
 __license__ = "BSD"
@@ -58,12 +58,12 @@ def root_finding(ppoints,cx,cy, current_degree, robot_pos_x,robot_pos_y):
     plt.pause(0.1)
     """
 
-    
-    return error, spoint_count
+
+    return error
 
 
 def main(processed_lidar,processed_map,robot_pos_x,robot_pos_y):
-    tic = time.clock()          #initial time 
+    #tic = time.clock()          #initial time 
 
     """
     # previous points
@@ -80,43 +80,38 @@ def main(processed_lidar,processed_map,robot_pos_x,robot_pos_y):
    
     current_degree = 0 
     pre_spoint_count = -1 
-    final_sponit = 0            #count of final successful point 
+    final_error = 1000            #count of final successful point 
     final_degree = 0            
     spoint_count = 0            #count of successful point
     tpoint_count = len(cx)      #count of total point 
 
     for i in range(360):
         #current_degree = (max_degree+min_degree)/2
-        current_val = 0 
          
         if i%10 == 0:
             current_degree = i 
-            current_val , spoint_count =  root_finding(ppoints,cx,cy,i,robot_pos_x,robot_pos_y) 
+            error =  root_finding(ppoints,cx,cy,i,robot_pos_x,robot_pos_y) 
         
-        #compare the best one 
-        if final_sponit< spoint_count : 
-            final_sponit = spoint_count
-            final_degree = i 
+            #compare the best one 
+            if final_error> error: 
+                final_error=error
+                final_degree = i 
 
-            """
-            #show iteration result 
-            print("")
-            print("Iteration : "+ str(i))
-            print("Current degree : "+str(current_val))
-            print("Total point : "+str(tpoint_count))
-            print("Sucessful point : "+str(spoint_count))
-            """
+                #show iteration result 
+                print("")
+                print("Iteration : "+ str(i))
+                print("Current degree : "+str(current_degree))
+                print("Sucessful point : "+str(error))
 
-        pre_spoint_count = spoint_count
         
-    toc = time.clock()          #finish time
+    #toc = time.clock()          #finish time
 
     result_log = [] 
     result_log.append("Final Result")
     result_log.append("Current rotated degree : "+str(final_degree))
     result_log.append("Total point : "+str(tpoint_count))
-    result_log.append("Sucessful point : "+str(final_sponit))
-    result_log.append("Time :"+str(toc - tic))
+    result_log.append("Sucessful error : "+str(final_error))
+    #result_log.append("Time :"+str(toc - tic))
     rospy.loginfo(result_log)
 
 

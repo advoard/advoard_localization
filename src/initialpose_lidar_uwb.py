@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 __author__ = "Bekir Bostanci"
 __license__ = "BSD"
@@ -12,9 +12,9 @@ import rospy
 
 from std_msgs.msg import String
 from geometry_msgs.msg import PoseWithCovarianceStamped
-from ieu_agv.msg import  uwb_data
+from pozyx_simulation.msg import  uwb_data
 from sensor_msgs.msg import LaserScan
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PointStamped
 from nav_msgs.msg import OccupancyGrid
 
 from threading import Timer
@@ -47,8 +47,8 @@ def setInitialPosition(pose_ini_x,pose_ini_y,theta):
     initial_pose.header.stamp = rospy.Time.now()
     initial_pose.header.frame_id = "map"
     
-    initial_pose.pose.pose.position.x = pose_ini_x/1000
-    initial_pose.pose.pose.position.y = pose_ini_y/1000
+    initial_pose.pose.pose.position.x = pose_ini_x
+    initial_pose.pose.pose.position.y = pose_ini_y
     initial_pose.pose.pose.position.z = 0.0
 
     initial_pose.pose.pose.orientation.x = 0.0
@@ -59,7 +59,9 @@ def setInitialPosition(pose_ini_x,pose_ini_y,theta):
     initial_pose.pose.covariance = [0.0041843402126411355, 4.2477366476223466e-05, 0.0, 0.0, 0.0, 0.0, 4.2477366476223466e-05, 0.0005426193303021687,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0.0003465551204496198]
     #before the one message publishing we should sleep 1 second
     rospy.sleep(1)
-    publisher_initial_pose.publish(initial_pose)
+    for i in range(10):
+        time.sleep(0.1)
+        publisher_initial_pose.publish(initial_pose)
 
 def start_initializing():
     global occupancy_map
@@ -72,8 +74,8 @@ def start_initializing():
     global sub_local
     
     map_width = occupancy_map.info.width
-    map_resolution = occupancy_map.info.resolution * 1000    #map resolution convert meter to milli meter 
-    map_origin = [occupancy_map.info.origin.position.x  * 1000 ,occupancy_map.info.origin.position.y * 1000]
+    map_resolution = occupancy_map.info.resolution     #map resolution convert meter to milli meter 
+    map_origin = [occupancy_map.info.origin.position.x   ,occupancy_map.info.origin.position.y ]
     
     map_max_radius = 1400       #map max radius millimeter 
     
@@ -90,7 +92,7 @@ def start_initializing():
         if i>99 : 
             x = ((counter_map % map_width) * map_resolution) + map_origin[0]
             y = ((counter_map / map_width) * map_resolution) + map_origin[1]
-            if abs(x -(robot_realtime_pose.position.x)) <  map_max_radius  and abs(y - (robot_realtime_pose.position.y)) < map_max_radius:
+            if abs(x -(robot_realtime_pose.point.x)) <  map_max_radius  and abs(y - (robot_realtime_pose.point.y)) < map_max_radius:
                 processed_map.append([x,y])
     
     for i in range(0,360):
@@ -98,21 +100,21 @@ def start_initializing():
             degree_lidar_c = math.cos(np.deg2rad(i))
             degree_lidar_s = math.sin(np.deg2rad(i))
             #lidar data convert cartesian coordinate 
-            processed_lidar.append([lidar_ranges.ranges[i] * degree_lidar_c * 1000 , lidar_ranges.ranges[i] * degree_lidar_s * 1000]) 
+            processed_lidar.append([lidar_ranges.ranges[i] * degree_lidar_c  , lidar_ranges.ranges[i] * degree_lidar_s ]) 
     
     #find lidar and map data coverage ratio of maximum degree
-    final_degree = map_matcher.main(processed_lidar,processed_map,robot_realtime_pose.position.x,robot_realtime_pose.position.y)
+    final_degree = map_matcher.main(processed_lidar,processed_map,robot_realtime_pose.point.x,robot_realtime_pose.point.y)
     #set the initial pose and direction 
-    setInitialPosition(robot_realtime_pose.position.x,robot_realtime_pose.position.y,math.radians(final_degree))
+    setInitialPosition(robot_realtime_pose.point.x,robot_realtime_pose.point.y,math.radians(final_degree))
     
      
 def subscribe_lidar(LaserScan):
     global lidar_ranges
     lidar_ranges= LaserScan
 
-def subscribe_uwb(Pose):
+def subscribe_uwb(Point):
     global robot_realtime_pose
-    robot_realtime_pose  = Pose
+    robot_realtime_pose  = Point
 
 def subscribe_map(OccupancyGrid):
     global occupancy_map
@@ -128,13 +130,13 @@ if __name__ == "__main__":
     rospy.init_node('initialpose_lidar_uwb', anonymous=True)
     sub_map = rospy.Subscriber("map",OccupancyGrid, subscribe_map)                  #get map data
     sub_scan = rospy.Subscriber("scan", LaserScan, subscribe_lidar)                 #get lidar data
-    sub_local = rospy.Subscriber("localization_data_topic", Pose, subscribe_uwb)    #get robot position
+    sub_local = rospy.Subscriber("localization_data_topic", PointStamped, subscribe_uwb)    #get robot position
 
-    time.sleep(5)
+    time.sleep(1)
     control_ready = 0
     while control_ready < 20 :
         control_ready = control_ready + 1 
-        time.sleep(0.2)
+        time.sleep(0.1)
         if occupancy_map != None and lidar_ranges != None and robot_realtime_pose != None : 
             rospy.loginfo("Initial pose estimation is working.")
             start_initializing()

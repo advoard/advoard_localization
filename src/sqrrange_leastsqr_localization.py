@@ -113,7 +113,6 @@ def get_anchors_pos():
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             break
 
-    sensor_pos = np.dot(sensor_pos,1000)
 
 
     if sensor_pos == [] :

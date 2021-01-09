@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 __author__ = "Bekir Bostanci"
 __license__ = "BSD"
@@ -11,6 +11,7 @@ import rospy
 
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PointStamped
 from geometry_msgs.msg import Twist
 
 import sys
@@ -43,8 +44,8 @@ def setInitialPosition(pose_ini_x,pose_ini_y,theta):
     initial_pose.header.stamp = rospy.Time.now()
     initial_pose.header.frame_id = "map"
     
-    initial_pose.pose.pose.position.x = pose_ini_x/1000
-    initial_pose.pose.pose.position.y = pose_ini_y/1000
+    initial_pose.pose.pose.position.x = pose_ini_x
+    initial_pose.pose.pose.position.y = pose_ini_y
     initial_pose.pose.pose.position.z = 0.0
 
     initial_pose.pose.pose.orientation.x = 0.0
@@ -60,13 +61,13 @@ def setInitialPosition(pose_ini_x,pose_ini_y,theta):
     
     initial_pose_publisher.publish(initial_pose)
 
-def subscribe_data_pose(Pose):
+def subscribe_data_pose(PointStamped):
     global control_finish_move 
     #second uwb measurement set every update  
     if  poses_final == [] and len(poses_initial)<30:
-            poses_initial.append([Pose.position.x,Pose.position.y])        
+            poses_initial.append([PointStamped.point.x,PointStamped.point.y])        
     elif control_finish_move == True and len(poses_final)<30 :
-            poses_final.append([Pose.position.x,Pose.position.y])
+            poses_final.append([PointStamped.point.x,PointStamped.point.y])
             if len(poses_final) == 30:
                     finish_move()
                           
@@ -148,7 +149,7 @@ def finish_move():
 
 if __name__ == "__main__":
     rospy.init_node('initialpose_uwb_average', anonymous=True)
-    subscriber =rospy.Subscriber('localization_data_topic', Pose, subscribe_data_pose)
+    subscriber =rospy.Subscriber('localization_data_topic', PointStamped, subscribe_data_pose)
     
     t = Timer(3, move)
     t.start()

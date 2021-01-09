@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>ieuagv_localization</name>
+  <name>advoard_localization</name>
   <version>0.0.1</version>
-  <description>The ieuagv_localization package</description>
+  <description>The advoard_localization package</description>
   <maintainer email="bekirbostanci@gmail.com">Bostanci</maintainer>
   <license>BSD</license>
   <author email="bekirbostanci@gmail.com">Bekir Bostanci</author>

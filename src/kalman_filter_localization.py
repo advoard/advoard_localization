@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 __author__ = "Bekir Bostanci"
 __license__ = "BSD"
@@ -14,7 +14,9 @@ import scipy.stats
 
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Pose
-from ieu_agv.msg import  uwb_data
+from pozyx_simulation.msg import  uwb_data
+from geometry_msgs.msg import PointStamped
+
 import math
 
 import tf 
@@ -30,6 +32,7 @@ sensor_pos=[]
 
 rospy.init_node('kalman_filter_localization', anonymous=True)
 pub = rospy.Publisher('localization_data_topic', Pose, queue_size=10)
+pub_ = rospy.Publisher('position_kalman', PointStamped, queue_size=10)
 r = rospy.Rate(1)
 
 
@@ -47,7 +50,7 @@ def prediction_step(Odometry):
     y = mu[1]
     theta = mu[2]
 
-    delta_vel = Odometry.twist.twist.linear.x *1000           # redefine r1                  odom=>twist=>linear=>x 
+    delta_vel = Odometry.twist.twist.linear.x            # redefine r1                  odom=>twist=>linear=>x 
     delta_w = Odometry.twist.twist.angular.z                  # redefine t                   odom=>twist=>angular=>z
     
     noise = 0.1**2
@@ -151,6 +154,12 @@ def publish_data(pose_x,pose_y):
     robot_pos.orientation.w = 0.0
     pub.publish(robot_pos)
 
+    robot_pos_ = PointStamped()
+    robot_pos_.header.stamp = rospy.Time.now() 
+    robot_pos_.header.frame_id = "map" 
+    robot_pos_.point = robot_pos.position
+    pub_.publish(robot_pos_)
+
 
 def get_anchors_pos():
     max_anchor = 100
@@ -165,14 +174,6 @@ def get_anchors_pos():
             sensor_pos.append(trans)
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             break
-
-    sensor_pos = np.dot(sensor_pos,1000)
-
-
-    if sensor_pos == [] :
-        rospy.logwarn("There is not found any anchors. Function is working again.")    
-        get_anchors_pos()
-
 
     return sensor_pos
 

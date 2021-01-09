@@ -1,4 +1,4 @@
 <launch>
-    <include file="$(find ieuagv_localization)/launch/kalman_localization.launch" />
-    <node pkg="ieuagv_localization" name="initialpose_lidar_uwb" type="initialpose_lidar_uwb.py" />
+    <include file="$(find advoard_localization)/launch/kalman_localization.launch" />
+    <node pkg="advoard_localization" name="initialpose_lidar_uwb" type="initialpose_lidar_uwb.py" />
 </launch>

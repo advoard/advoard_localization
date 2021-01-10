@@ -64,18 +64,7 @@ def mean_pose():
     vys_theta = []
 
     toplam_nokta  = 0
-    """
-    for i in range(len(particles)):
-        if weights[i]>0.001: 
-            toplam_nokta = toplam_nokta +1  
-            xs.append(particles[i]['x'])
-            ys.append(particles[i]['y'])
-
-            #make unit vector from particle orientation
-            vxs_theta.append(np.cos(particles[i]['theta']))
-            vys_theta.append(np.sin(particles[i]['theta']))
-    print("toplam :" + str(toplam_nokta))
-    """
+     
 
 
     for particle in particles:

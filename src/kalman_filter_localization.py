@@ -174,12 +174,17 @@ def get_anchors_pos():
 
 if __name__ == "__main__":
     global odom_hz
+    odom_topic_name = "odom"
+
     #get uwb anchors postion
     sensor_pos = get_anchors_pos()
+
+    #get odom hz 
     r = rostopic.ROSTopicHz(-1)
-    rospy.Subscriber('/odom', Odometry, r.callback_hz, callback_args='/odom')
+    s=rospy.Subscriber('/' + odom_topic_name, Odometry, r.callback_hz, callback_args='/odom')
     rospy.sleep(1)
-    odom_hz = int(r.get_hz('/odom')[0])
+    odom_hz = int(r.get_hz('/' + odom_topic_name)[0])
+    s.unregister()
     
     rospy.Subscriber("odom", Odometry, subscribe_odom_data)
     rospy.Subscriber("uwb_data_topic", uwb_data, subscribe_uwb_data)

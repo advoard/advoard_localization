@@ -239,8 +239,19 @@ def get_anchors_pos():
 if __name__ == "__main__":
     global particles
     global sensor_pos
+    global odom_hz
+    
+    odom_topic_name = "odom"
+    
     #get uwb anchors postion
     sensor_pos = get_anchors_pos()
+
+    #get odom hz 
+    r = rostopic.ROSTopicHz(-1)
+    s=rospy.Subscriber('/' + odom_topic_name, Odometry, r.callback_hz, callback_args='/odom')
+    rospy.sleep(1)
+    odom_hz = int(r.get_hz('/' + odom_topic_name)[0])
+    s.unregister()
 
     #1800 0
     map_limits = [-3,3,-3,3]

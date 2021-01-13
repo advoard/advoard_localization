@@ -21,6 +21,8 @@ import math
 import tf 
 import time
 
+import rostopic
+
 
 #initialize belief
 global mu 
@@ -48,8 +50,8 @@ def prediction_step(Odometry):
     y = mu[1]
     theta = mu[2]
 
-    delta_vel = Odometry.twist.twist.linear.x            # redefine r1                  odom=>twist=>linear=>x 
-    delta_w = Odometry.twist.twist.angular.z                  # redefine t                   odom=>twist=>angular=>z
+    delta_vel = Odometry.twist.twist.linear.x /odom_hz           # redefine r1                  odom=>twist=>linear=>x 
+    delta_w = Odometry.twist.twist.angular.z /odom_hz                 # redefine t                   odom=>twist=>angular=>z
     
     noise = 0.1**2
     v_noise = delta_vel**2
@@ -61,9 +63,9 @@ def prediction_step(Odometry):
 
 
     #noise free motion
-    x_new = x + delta_vel*np.cos(theta)/30
-    y_new = y + delta_vel*np.sin(theta)/30
-    theta_new = theta + delta_w/30
+    x_new = x + delta_vel*np.cos(theta)
+    y_new = y + delta_vel*np.sin(theta)
+    theta_new = theta + delta_w
     
     #Jakobian of g with respect to the state
     G = np.array([[1.0, 0.0, -delta_vel * np.sin(theta)],
@@ -152,6 +154,7 @@ def publish_data(pose_x,pose_y):
 
 
 def get_anchors_pos():
+    
     max_anchor = 100
     sensor_pos = []   
     uwb_id = 'uwb_anchor_'
@@ -170,10 +173,15 @@ def get_anchors_pos():
     return sensor_pos
 
 if __name__ == "__main__":
+    global odom_hz
     #get uwb anchors postion
     sensor_pos = get_anchors_pos()
+    r = rostopic.ROSTopicHz(-1)
+    rospy.Subscriber('/odom', Odometry, r.callback_hz, callback_args='/odom')
+    rospy.sleep(1)
+    odom_hz = int(r.get_hz('/odom')[0])
     
     rospy.Subscriber("odom", Odometry, subscribe_odom_data)
     rospy.Subscriber("uwb_data_topic", uwb_data, subscribe_uwb_data)
-
+    
     rospy.spin()
